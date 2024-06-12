@@ -1,0 +1,28 @@
+.chat-message {
+  display: flex;
+  flex-direction: row;
+
+  margin-top: 10px;
+  width: 100%;
+}
+
+.chat-message__bubble {
+  background-color: #f1f1f1;
+  border-radius: 10px;
+  padding: 10px;
+
+  width: 350px;
+}
+
+.chat-message--left {
+  width: 100%;
+}
+
+.chat-message--right {
+  justify-content: flex-end;
+}
+
+.chat-message__bubble--left {
+  width: 100% !important;
+  background-color: transparent;
+}

@@ -1,0 +1,16 @@
+<div
+  class="chat-message"
+  [ngClass]="{
+    'chat-message--left': message?.role === 'assistant',
+    'chat-message--right': message?.role === 'user'
+  }"
+>
+  <div
+    class="chat-message__bubble"
+    [ngClass]="{
+      'chat-message__bubble--left': message?.role === 'assistant'
+    }"
+  >
+    <p>{{message?.content}}</p>
+  </div>
+</div>

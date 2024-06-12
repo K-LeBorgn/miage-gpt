@@ -1,0 +1,11 @@
+.chat-container{
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+app-chat-view {
+  align-self: end;
+  width: 100%;
+  height: 100%;
+}

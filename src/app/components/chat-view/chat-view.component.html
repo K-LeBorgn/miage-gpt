@@ -1,0 +1,18 @@
+<div class="chat-view-container">
+  <app-navbar></app-navbar>
+  <div class="chat-view" #chatView>
+    <div class="chat">
+      @for(message of messages; track message){
+        <app-chat-message [message]="message"></app-chat-message>
+      }
+    </div>
+
+    <div class="chat-view__loading" *ngIf="chatService.loading">
+      @for (i of chatService.loadingIndexes; track i){
+        <div class="chat-view__loading__message"></div>
+      }
+      <span>Loading response</span>
+    </div>
+  </div>
+  <app-chat-input></app-chat-input>
+</div>

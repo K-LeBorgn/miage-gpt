@@ -24,9 +24,10 @@
       "dom"
     ],
     "paths": {
-      "@components/*": ["src/app/components/*"],
-      "@screens/*": ["src/app/screens/*"],
-      "@services/*": ["src/app/services/*"]
+      "@components/*": ["./src/app/components/*"],
+      "@screens/*": ["./src/app/screens/*"],
+      "@services/*": ["./src/app/services/*"],
+      "@models/*": ["./src/app/models/*"]
     }
   },
   "angularCompilerOptions": {
