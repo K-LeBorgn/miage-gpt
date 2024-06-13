@@ -1,5 +1,28 @@
 <div class="sidebar-container" [ngClass]="{'opened' : sidebarService.open}">
   <div class="sidebar">
-
+    @if(chatService.todayHistory.groups.length !== 0){
+      <p>Today</p>
+      <div>
+        @for(group of chatService.todayHistory.groups; track group){
+          <button class="history-item-title">{{group.title}}</button>
+        }
+      </div>
+    }
+    @if(chatService.yesterdayHistory.groups.length !== 0){
+      <p>Yesterday</p>
+      <div>
+        @for(group of chatService.yesterdayHistory.groups; track group){
+          <button class="history-item-title">{{group.title}}</button>
+        }
+      </div>
+    }
+    @if(chatService.olderHistory.groups.length !== 0){
+      <p>Older messages</p>
+      <div>
+        @for(group of chatService.olderHistory.groups; track group){
+          <button class="history-item-title">{{group.title}}</button>
+        }
+      </div>
+    }
   </div>
 </div>

@@ -1,5 +1,4 @@
 <div class="chat-input-container">
-  <button></button>
-  <input class="chat-input">
-  <button></button>
+  <input contenteditable="true" class="chat-input" placeholder="Write your message here" [(ngModel)]="message" (keyup.enter)="send()">
+  <button (click)="send()" [disabled]="message === ''"> <img [ngClass]="{'sending': sending}" ngSrc="send.png" alt="send icons" height="20" width="20"></button>
 </div>

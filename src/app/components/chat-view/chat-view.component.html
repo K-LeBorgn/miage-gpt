@@ -2,8 +2,14 @@
   <app-navbar></app-navbar>
   <div class="chat-view" #chatView>
     <div class="chat">
-      @for(message of messages; track message){
-        <app-chat-message [message]="message"></app-chat-message>
+      @if(chatService.messages.length !== 0){
+        @for(message of chatService.messages; track message.id){
+          <app-chat-message [message]="message"></app-chat-message>
+        }
+      } @else {
+        <div class="empty-chat">
+          <span>Ask me anything</span>
+        </div>
       }
     </div>
 
