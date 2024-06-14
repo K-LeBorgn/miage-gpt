@@ -11,6 +11,13 @@
       'chat-message__bubble--left': message?.role === 'assistant'
     }"
   >
-    <span>{{message?.content}}</span>
+    @switch (type){
+      @case('chat'){
+        <span>{{message?.content}}</span>
+      }
+      @case('img'){
+        <img [src]="message?.content" alt="image" />
+      }
+    }
   </div>
 </div>

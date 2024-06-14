@@ -14,4 +14,5 @@ import {NgClass} from "@angular/common";
 export class ChatMessageComponent {
 
   @Input() message?: Message;
+  @Input() type: 'chat' | 'img' | 'speech' = 'chat'
 }

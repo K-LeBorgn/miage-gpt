@@ -1,0 +1,14 @@
+<div class="chat-input-container">
+  <input #input contenteditable="true" class="chat-input" placeholder="Write your message here" [(ngModel)]="message" (keyup.enter)="send()" (keyup)="onKeyUp(input,$event)">
+  <button class="send" (click)="send()" [disabled]="message === ''"> <img [ngClass]="{'sending': sending}" ngSrc="send.png" alt="send icons" height="20" width="20"></button>
+  @if(showCommands){
+    <div class="command-list">
+      @for(command of commands; track command){
+        <div class="command" (click)="selectCommand(command)">
+          <img ngSrc="{{command}}.svg" alt="command icon" height="25" width="25" [ngClass]="{'scale-img': command === 'chat' || command === 'image'}">
+          <button>/{{ command }}</button>
+        </div>
+      }
+    </div>
+  }
+</div>

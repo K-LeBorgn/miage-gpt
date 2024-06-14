@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class SidebarService {
 
-  open: boolean = true;
+  open: boolean = false;
 
   constructor() { }
 

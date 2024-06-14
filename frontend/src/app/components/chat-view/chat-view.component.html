@@ -4,7 +4,7 @@
     <div class="chat">
       @if(chatService.messages.length !== 0){
         @for(message of chatService.messages; track message.id){
-          <app-chat-message [message]="message"></app-chat-message>
+          <app-chat-message [message]="message" [type]="message.type"></app-chat-message>
         }
       } @else {
         <div class="empty-chat">
