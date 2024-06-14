@@ -13,10 +13,25 @@
   >
     @switch (type){
       @case('chat'){
-        <span>{{message?.content}}</span>
+        <div [innerHtml]="message!.content | markdown"></div>
       }
       @case('img'){
-        <img [src]="message?.content" alt="image" />
+        <img [ngSrc]="message!.content" alt="image" width="256" height="256"/>
+      }
+      @case('speech'){
+        <audio controls>
+          <source [src]="message!.content" type="audio/mpeg">
+        </audio>
+      }
+      @case('vision'){
+        <div class="vision">
+          <div class="vision-images">
+            @for(image of message?.img; track message?.img?.indexOf(image)){
+              <img [src]="image" [alt]="'image ' + message?.img?.indexOf(image)" width="256" height="256"/>
+            }
+          </div>
+          <div [innerHtml]="message!.content | markdown"></div>
+        </div>
       }
     }
   </div>

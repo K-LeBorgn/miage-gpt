@@ -4,9 +4,10 @@ import { PORT } from './config.js';
 import chat_impl from "./routes/chat.js";
 import image_impl from "./routes/image.js";
 import speech_impl from "./routes/speech.js";
+import vision_impl from "./routes/vision.js";
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "1mb"}));
 app.use(express.urlencoded({ extended: true }));
 const port = PORT;
 
@@ -23,6 +24,7 @@ app.use(function (req, res, next) {
 app.post('/chat', chat_impl);
 app.post('/image', image_impl);
 app.post('/speech', speech_impl);
+app.post('/vision', vision_impl);
 
 // start server and listen to port 3001
 app.listen(port, () => {

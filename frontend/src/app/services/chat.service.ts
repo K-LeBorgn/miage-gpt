@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {EventEmitter, Injectable, Output} from '@angular/core';
 import Message from "@models/Message";
 import {HttpClient} from "@angular/common/http";
 
@@ -7,28 +7,17 @@ import {HttpClient} from "@angular/common/http";
 })
 export class ChatService {
 
+  newResponse = new EventEmitter<boolean>();
+
+  attachments: {id:number, src: string, file: File}[] = [];
   loadingIndexes = [1,2,3];
   loading = false;
-  command? : '/chat' | '/image' | '/speech'
+  command? : '/chat' | '/image' | '/speech' | '/vision';
 
-  messages : Message[] = [
-    {id:1, role: 'assistant', content: 'Hello! How can I help you today?', type:'chat'},
-    {id:2, role: 'user', content: 'I have a question about my account.', type:'chat'},
-    {id:3, role: 'assistant', content: 'Sure, I can help with that. What would you like to know?', type:'chat'},
-    {id:4, role: 'user', content: 'I would like', type:'chat'},
-    {id:5, role: 'assistant', content: 'I am sorry, I did not understand that. Could you please rephrase your question?', type:'chat'},
-    {id:6, role: 'user', content: 'I would like to know my account balance.', type:'chat'},
-    {id:7, role: 'assistant', content: 'I can help with that. Could you please provide me with your account number?', type:'chat'},
-    {id:8, role: 'user', content: 'Sure, my account number is 123456789.', type:'chat'},
-    {id:9, role: 'assistant', content: 'Thank you. Your account balance is $500.00.', type:'chat'},
-    {id:10, role: 'user', content: 'Thank you for your help.', type:'chat'},
-    {id:11, role: 'assistant', content: 'You are welcome. Have a great day!', type:'chat'},
-    {id:12, role: 'user', content: 'Goodbye.', type:'chat'},
-    {id:13, role: 'assistant', content: 'Goodbye.', type:'chat'}
-  ];
+  messages : Message[] = [];
 
   messagesGroup: {id: number, title:string, lastUpdate : Date, messages: Message[]}[] = [
-    {id:1, title:"Account balance", lastUpdate: new Date(), messages: [...this.messages]}
+    {id:1, title:"New chat 1", lastUpdate: new Date(), messages: [...this.messages]}
   ];
 
   todayHistory: {groups: {id?:number, title?:string,lastUpdate?: Date, messages?: Message[]}[]} = {groups: []};
@@ -38,15 +27,58 @@ export class ChatService {
   constructor(private readonly httpClient : HttpClient) { }
 
   send(message: string){
-    this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'chat'});
+    const imgSources : string[] = [];
+    for (let attachment of this.attachments){
+      imgSources.push(attachment.src);
+    }
+    //this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'vision', img: imgSources}); // delete it after uncommenting the following code
+    switch (this.command){
+      case '/chat':
+      case '/image':
+      case '/speech':
+        this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'chat'});
+        break;
+      case '/vision':
+        this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'vision', img: imgSources});
+        break;
+      default:
+        this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'chat'});
+        break;
+    }
     this.loading = true;
     let url : string = "http://localhost:8080"+this.command;
     console.log(url)
 
-    this.httpClient.post(url, { prompt: message}).subscribe((data) => {
-      this.loading = false;
-      this.messages.push(this.treatResult(data));
-    })
+    switch (this.command){
+      case '/chat':
+      case '/image':
+        this.httpClient.post(url, {prompt: message}).subscribe((data) => {
+          this.loading = false;
+          this.messages.push(this.treatResult(data));
+          this.newResponse.emit(true);
+        });
+        break;
+      case '/speech':
+        this.httpClient.post(url, {prompt: message},{ responseType: 'blob' }).subscribe((data) => {
+          this.loading = false;
+          this.messages.push({id: this.messages.length + 1,role: 'assistant', content: window.URL.createObjectURL(data), type:'speech'});
+          this.newResponse.emit(true);
+        });
+        break;
+      case '/vision':
+        const imgSources : string[] = [];
+        for (let attachment of this.attachments){
+          imgSources.push(attachment.src);
+        }
+        this.httpClient.post("http://localhost:8080/vision", {images: imgSources, prompt: message}).subscribe((data) => {
+          console.log(data)
+          this.loading = false;
+          this.attachments = [];
+          this.messages.push(this.treatResult(data));
+          this.newResponse.emit(true);
+        });
+        break;
+    }
   }
 
   formatDate(date: Date): string {
@@ -90,22 +122,45 @@ export class ChatService {
   }
 
   setCommand(command : string | undefined){
-    console.log("command",command)
-
     switch (command){
       case '/chat': this.command = command; break;
       case '/image': this.command = command; break;
       case '/speech': this.command = command; break;
-      default: this.command = '/chat'; break;
+      default:
+        if(this.attachments.length === 0) this.command = '/chat';
+        else this.command = '/vision';
+        break;
     }
   }
 
   treatResult(data : any) : Message{
+    this.attachments = [];
+
     switch (this.command){
       case '/chat': return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'chat'};
       case '/image': return {id: this.messages.length + 1,role: 'assistant', content: data.data[0].url, type:'img'};
       case '/speech': return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].content, type:'chat'};
+      case '/vision': return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'vision'};
       default : return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'chat'};
     }
+  }
+
+  processFile(imageInput: any) {
+    if(imageInput.files.length === 0) return;
+
+    for (let file of imageInput.files) {
+      if (this.attachments.some(attachment => attachment.file.name === file.name)) continue;
+      const reader = new FileReader();
+      reader.addEventListener('load', (event: any) => {
+        this.attachments.push({id: this.attachments.length + 1, src: event.target.result, file: file});
+      });
+
+      reader.readAsDataURL(file);
+    }
+    imageInput.value = '';
+  }
+
+  removeAttachment(id: number){
+    this.attachments = this.attachments.filter(attachment => attachment.id !== id);
   }
 }

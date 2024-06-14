@@ -13,6 +13,18 @@
   margin: 10px;
 
   width: 350px;
+
+  & .vision{
+    display: flex;
+    flex-direction: column;
+
+    & .vision-images{
+      display: flex;
+      gap: 10px;
+      overflow-x: scroll;
+      margin-bottom: 10px;
+    }
+  }
 }
 
 .chat-message--left {
@@ -26,4 +38,25 @@
 .chat-message__bubble--left {
   width: 100% !important;
   background-color: transparent;
+}
+
+audio {
+
+  &::-webkit-media-controls-panel {
+    background-color: var(--bg-color);
+  }
+
+  &::-webkit-media-controls-play-button {
+    background-color: black;
+    filter: invert(100%);
+    border-radius: 50%;
+  }
+
+  &::-webkit-media-controls-current-time-display {
+    color: white;
+  }
+
+  &::-webkit-media-controls-time-remaining-display {
+    color: white;
+  }
 }

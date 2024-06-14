@@ -5,6 +5,11 @@ export default async function image_impl(req, res) {
     const prompt = req.body.prompt;
     console.log("IMAGE PROMPT: ", prompt);
 
+    if(!prompt) {
+        res.status(400).json({ error: "Missing prompt" });
+        return;
+    }
+
     // send the prompt to the OpenAI Dall-E 2 API
     const response = await openai.images.generate({
         model: "dall-e-2",

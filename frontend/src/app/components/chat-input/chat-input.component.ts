@@ -1,4 +1,4 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {NgClass, NgOptimizedImage} from "@angular/common";
 import {ChatService} from "@services/chat.service";
 import {FormsModule} from "@angular/forms";
@@ -16,7 +16,7 @@ import {FormsModule} from "@angular/forms";
 })
 export class ChatInputComponent {
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(protected readonly chatService: ChatService) {}
 
   sending: boolean = false;
   message: string = '';
@@ -66,7 +66,6 @@ export class ChatInputComponent {
     if(this.command) messageToSend = this.message.split(this.command)[1]
     else messageToSend = this.message;
 
-    console.log('test', this.command)
     this.chatService.setCommand(this.command);
     this.chatService.send(messageToSend);
     this.message = '';

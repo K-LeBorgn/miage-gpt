@@ -7,6 +7,11 @@ const speechFile = path.resolve("./speech.mp3");
 export default async function speech_impl(req, res) {
     // get prompt from the form data
     const prompt = req.body.prompt;
+    console.log("SPEECH PROMPT: ", prompt);
+    if(!prompt) {
+        res.status(400).json({ error: "Missing prompt" });
+        return;
+    }
 
     // send the prompt to the OpenAI API
     const response = await openai.chat.completions.create({
