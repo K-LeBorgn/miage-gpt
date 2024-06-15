@@ -27,4 +27,4 @@ Thumbs.db
 /**/.env
 
 # Generated files by backend
-/**/.mp3
+/**/*.mp3

@@ -1,26 +1,32 @@
 <div class="sidebar-container" [ngClass]="{'opened' : sidebarService.open}">
   <div class="sidebar">
-    @if(chatService.todayHistory.groups.length !== 0){
+    <h1 class="sidebar-title">History</h1>
+    @if(historyService.todayHistory.groups.length !== 0){
       <p>Today</p>
       <div>
-        @for(group of chatService.todayHistory.groups; track group){
-          <button class="history-item-title">{{group.title}}</button>
+        @for(group of historyService.todayHistory.groups; track group){
+          <div class="history-item-title" (click)="historyService.changeConversation(group.id!)">
+            {{group.title}}
+            <button class="history-item-delete" (click)="chatService.removeConversation(group.id!)" data-title="Delete" [disabled]="chatService.loading">
+              <img class="icon" src="delete.svg" alt="delete" width="15" height="15"/>
+            </button>
+          </div>
         }
       </div>
     }
-    @if(chatService.yesterdayHistory.groups.length !== 0){
+    @if(historyService.yesterdayHistory.groups.length !== 0){
       <p>Yesterday</p>
       <div>
-        @for(group of chatService.yesterdayHistory.groups; track group){
-          <button class="history-item-title">{{group.title}}</button>
+        @for(group of historyService.yesterdayHistory.groups; track group){
+          <button class="history-item-title" (click)="historyService.changeConversation(group.id!)">{{group.title}}</button>
         }
       </div>
     }
-    @if(chatService.olderHistory.groups.length !== 0){
+    @if(historyService.olderHistory.groups.length !== 0){
       <p>Older messages</p>
       <div>
-        @for(group of chatService.olderHistory.groups; track group){
-          <button class="history-item-title">{{group.title}}</button>
+        @for(group of historyService.olderHistory.groups; track group){
+          <button class="history-item-title" (click)="historyService.changeConversation(group.id!)">{{group.title}}</button>
         }
       </div>
     }

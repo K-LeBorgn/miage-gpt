@@ -6,9 +6,10 @@ const speechFile = path.resolve("./speech.mp3");
 
 export default async function speech_impl(req, res) {
     // get prompt from the form data
-    const prompt = req.body.prompt;
-    console.log("SPEECH PROMPT: ", prompt);
-    if(!prompt) {
+    const messages = req.body.messages;
+    console.log("SPEECH MESSAGES: ", messages);
+    console.log("SPEECH PROMPT: ", messages[messages.length - 1].content);
+    if(!messages) {
         res.status(400).json({ error: "Missing prompt" });
         return;
     }
@@ -17,13 +18,9 @@ export default async function speech_impl(req, res) {
     const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo-0125",
         messages: [
-            {
-                "role": "user",
-                "content": prompt
-            }
+            ...messages
         ],
         temperature: 1,
-        max_tokens: 50,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0,

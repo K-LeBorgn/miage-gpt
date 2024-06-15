@@ -1,18 +1,58 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root{
-  --bg-color: #212121;
-  --scrollbar-color : #454545;
-  --text-color: #E4E4E4;
-  --title-color: #B4B4B4;
-  --icon-color: #B4B4B4;
-  --sidebar-bg-color: #181818;
-  --user-message-bubble: #2E2E2E;
-  --button-color: white;
-  --button-disabled-color: #858585;
-  --input-placeholder-color: #B4B4B4;
-  --sidebar-bubble-color: #2E2E2E;
-  --history-date-color: #B4B4B4;
+  .dark{
+    --bg-color: #212121;
+    --inverted-bg-color: #dedede;
+    --scrollbar-color : #454545;
+    --text-color: #E4E4E4;
+    --inverted-text-color: #1b1b1b;
+    --title-color: #B4B4B4;
+    --icon-color: #B4B4B4;
+    --sidebar-bg-color: #181818;
+    --user-message-bubble: #2E2E2E;
+    --button-color: white;
+    --button-disabled-color: #858585;
+    --input-placeholder-color: #B4B4B4;
+    --sidebar-bubble-color: #2E2E2E;
+    --history-date-color: #B4B4B4;
+    --attachment-item-text-color: black;
+
+
+    --icon-url: url("./app/assets/dark-theme.svg");
+  }
+
+  .light{
+    --bg-color: #dedede;
+    --inverted-bg-color: #212121;
+    --scrollbar-color : #bababa;
+    --text-color: #1b1b1b;
+    --inverted-text-color: #E4E4E4;
+    --title-color: #4b4b4b;
+    --button-color: black;
+    --icon-color: #4b4b4b;
+    --sidebar-bg-color: #e7e7e7;
+    --user-message-bubble: #d1d1d1;
+    --button-disabled-color: #7a7a7a;
+    --input-placeholder-color: #4b4b4b;
+    --sidebar-bubble-color: #d1d1d1;
+    --history-date-color: #4b4b4b;
+    --attachment-item-text-color: white;
+
+    --icon-url: url("./app/assets/light-theme.svg");
+
+    .send, .icon{
+      filter: invert(1);
+    }
+
+    .attachment-item{
+      filter: none;
+    }
+
+    .history-item-title{
+      filter: none;
+    }
+  }
 }
 
 .app-page {
@@ -59,14 +99,13 @@ button:disabled{
 
 [data-title]:hover:after {
   opacity: 1;
-  transition: all 0.5s ease 0.5s;
+  transition: all 0.2s ease 0.2s;
 }
 [data-title]:after {
   opacity: 0;
   content: attr(data-title);
-
-  background-color: var(--button-color);
-  color: black;
+  background-color: var(--inverted-bg-color);
+  color: var(--inverted-text-color);
   font-size: 12px;
   font-weight: 600;
 
@@ -79,6 +118,10 @@ button:disabled{
   padding: 2px 5px;
 
   white-space: nowrap;
+}
+
+.history-item-delete[data-title]:after{
+  top: -2em;
 }
 
 label[data-title]:after{

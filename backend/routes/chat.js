@@ -2,9 +2,10 @@ import { openai } from '../config.js';
 
 export default async function chat_impl(req, res) {
     // get prompt from the form data
-    const prompt = req.body.prompt;
-    console.log("PROMPT: ", prompt);
-    if(!prompt) {
+    const messages = req.body.messages;
+    console.log("MESSAGES: ", messages);
+    console.log("PROMPT: ", messages[messages.length - 1].content);
+    if(!messages) {
         res.status(400).json({ error: "Missing prompt" });
         return;
     }
@@ -17,10 +18,7 @@ export default async function chat_impl(req, res) {
                 role: "system",
                 content: "You are a helpful assistant designed to output Markdown.",
             },
-            {
-                "role": "user",
-                "content": prompt
-            }
+            ...messages,
         ],
         temperature: 1,
         top_p: 1,

@@ -4,14 +4,16 @@
         @for(attachment of chatService.attachments; track attachment.id){
           <div class="attachment-item">
             {{attachment.file.name}}
-            <button class="remove-attachment" (click)="chatService.removeAttachment(attachment.id)"></button>
+            <button class="remove-attachment" (click)="chatService.removeAttachment(attachment.id)">
+              <img class="icon" ngSrc="cross.svg" alt="close icon" height="10" width="10">
+            </button>
           </div>
         }
     </div>
   }
   <div class="chat-input-message-container">
     <label for="file-upload" class="attachment" data-title="Add attachments">
-      <img ngSrc="attachment.svg" alt="send icons" height="20" width="20">
+      <img class="icon" ngSrc="attachment.svg" alt="send icons" height="20" width="20">
     </label>
     <input #imageInput
            id="file-upload"
@@ -21,13 +23,13 @@
            (change)="chatService.processFile(imageInput)">
 
     <input #input contenteditable="true" class="chat-input" placeholder="Write your message here" [(ngModel)]="message" (keyup.enter)="send()" (keyup)="onKeyUp(input,$event)">
-    <button class="send" (click)="send()" [disabled]="message === ''"> <img [ngClass]="{'sending': sending}" ngSrc="send.png" alt="send icons" height="20" width="20"></button>
+    <button class="send icon" (click)="send()" [disabled]="message === ''"><img [ngClass]="{'sending': sending}" ngSrc="send.png" alt="send icons" height="20" width="20"></button>
   </div>
   @if(showCommands){
     <div class="command-list">
       @for(command of commands; track command){
         <div class="command" (click)="selectCommand(command)">
-          <img ngSrc="{{command}}.svg" alt="command icon" height="25" width="25" [ngClass]="{'scale-img': command === 'chat' || command === 'image'}">
+          <img class="icon" ngSrc="{{command}}.svg" alt="command icon" height="25" width="25" [ngClass]="{'scale-img': command === 'chat' || command === 'image'}">
           <button>/{{ command }}</button>
         </div>
       }

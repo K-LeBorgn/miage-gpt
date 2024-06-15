@@ -6,9 +6,6 @@
   align-items: center;
 
   & .navbar-button{
-    background-image: url("../../assets/sidebar.svg");
-    background-size: cover;
-    background-position: center;
     background-color: transparent;
 
     margin-left: 20px;
@@ -16,6 +13,21 @@
     width: 30px;
     border: none;
     cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  & .navbar-buttons, .navbar-title-theme-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  & .theme{
+    margin-left: 0 !important;
+    margin-right: 20px;
   }
 
   & .navbar-title{

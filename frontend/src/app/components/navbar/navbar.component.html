@@ -1,4 +1,16 @@
 <div class="navbar-container">
-  <button class="navbar-button" (click)="sidebarService.toggle()" data-title="Toggle history"></button>
-  <h1 class="navbar-title">Miage GPT</h1>
+  <div class="navbar-buttons">
+    <button class="navbar-button" (click)="sidebarService.toggle()" data-title="Toggle history">
+      <img class="icon" src="sidebar.svg" alt="sidebar-icon" width="35px" height="35px">
+    </button>
+    <button class="navbar-button" (click)="newConversation()" data-title="New conversation">
+      <img class="icon" src="newConv.svg" alt="sidebar-icon" width="20px" height="20px">
+    </button>
+  </div>
+  <div class="navbar-title-theme-container">
+    <button class="navbar-button theme" (click)="toggleTheme()" data-title="Change theme">
+      <img class="icon" [src]="getThemeIcon()" alt="sidebar-icon" width="25px" height="25px">
+    </button>
+    <h1 class="navbar-title">Miage GPT</h1>
+  </div>
 </div>

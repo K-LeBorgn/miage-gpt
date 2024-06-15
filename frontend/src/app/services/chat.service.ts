@@ -8,6 +8,7 @@ import {HttpClient} from "@angular/common/http";
 export class ChatService {
 
   newResponse = new EventEmitter<boolean>();
+  refreshHistory = new EventEmitter<boolean>();
 
   attachments: {id:number, src: string, file: File}[] = [];
   loadingIndexes = [1,2,3];
@@ -16,13 +17,8 @@ export class ChatService {
 
   messages : Message[] = [];
 
-  messagesGroup: {id: number, title:string, lastUpdate : Date, messages: Message[]}[] = [
-    {id:1, title:"New chat 1", lastUpdate: new Date(), messages: [...this.messages]}
-  ];
-
-  todayHistory: {groups: {id?:number, title?:string,lastUpdate?: Date, messages?: Message[]}[]} = {groups: []};
-  yesterdayHistory: {groups: {id?:number, title?:string, messages?: Message[]}[]} = {groups: []};
-  olderHistory: {groups: {id?:number, title?:string, messages?: Message[]}[]} = {groups: []};
+  messagesGroup: {id: number, title:string, lastUpdate : Date, messages: Message[]}[] = JSON.parse(localStorage.getItem('messagesGroup') || '[]');
+  currentGroupId = 1;
 
   constructor(private readonly httpClient : HttpClient) { }
 
@@ -31,10 +27,16 @@ export class ChatService {
     for (let attachment of this.attachments){
       imgSources.push(attachment.src);
     }
-    //this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'vision', img: imgSources}); // delete it after uncommenting the following code
+
+    const messagesToSend : {role : 'user' | 'assistant', content: string}[] = [];
+
     switch (this.command){
       case '/chat':
+        this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'chat'});
+        break;
       case '/image':
+        this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'chat'});
+        break;
       case '/speech':
         this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'chat'});
         break;
@@ -45,24 +47,44 @@ export class ChatService {
         this.messages.push({id: this.messages.length + 1,role: 'user', content: message, type:'chat'});
         break;
     }
+
+    if (this.messagesGroup.length === 0 || this.messages.length === 1){
+      this.messagesGroup.push({id: this.currentGroupId, title: 'New chat ' + this.currentGroupId, lastUpdate: new Date(), messages: this.messages});
+      this.refreshHistory.emit(true);
+    }
     this.loading = true;
     let url : string = "http://localhost:8080"+this.command;
     console.log(url)
 
+    messagesToSend.push(...this.messages.map(message => {return {role: message.role, content: message.content}}));
+    console.log(messagesToSend)
+
     switch (this.command){
       case '/chat':
-      case '/image':
-        this.httpClient.post(url, {prompt: message}).subscribe((data) => {
+        this.httpClient.post(url, {messages: messagesToSend}).subscribe((data) => {
           this.loading = false;
           this.messages.push(this.treatResult(data));
           this.newResponse.emit(true);
+          this.refreshHistory.emit(true);
+
+        });
+        break;
+      case '/image':
+        this.httpClient.post(url, {prompt: messagesToSend[messagesToSend.length - 1].content}).subscribe((data) => {
+          this.loading = false;
+          this.messages.push(this.treatResult(data));
+          this.newResponse.emit(true);
+          this.refreshHistory.emit(true);
+
         });
         break;
       case '/speech':
-        this.httpClient.post(url, {prompt: message},{ responseType: 'blob' }).subscribe((data) => {
+        this.httpClient.post(url, {messages: messagesToSend},{ responseType: 'blob' }).subscribe((data) => {
           this.loading = false;
           this.messages.push({id: this.messages.length + 1,role: 'assistant', content: window.URL.createObjectURL(data), type:'speech'});
           this.newResponse.emit(true);
+          this.refreshHistory.emit(true);
+
         });
         break;
       case '/vision':
@@ -70,58 +92,24 @@ export class ChatService {
         for (let attachment of this.attachments){
           imgSources.push(attachment.src);
         }
-        this.httpClient.post("http://localhost:8080/vision", {images: imgSources, prompt: message}).subscribe((data) => {
+        this.httpClient.post("http://localhost:8080/vision", {images: imgSources, messages: messagesToSend}).subscribe((data) => {
           console.log(data)
           this.loading = false;
           this.attachments = [];
           this.messages.push(this.treatResult(data));
           this.newResponse.emit(true);
+          this.refreshHistory.emit(true);
+
         });
         break;
     }
   }
 
-  formatDate(date: Date): string {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    const isToday = date.toDateString() === today.toDateString();
-    const isYesterday = date.toDateString() === yesterday.toDateString();
-
-    if (isToday) {
-      return "Today";
-    } else if (isYesterday) {
-      return "Yesterday";
-    } else {
-      return date.toLocaleDateString(); // Format the date as needed
-    }
-  }
-
-  getHistory(){
-    this.todayHistory = {groups: []};
-    this.yesterdayHistory = {groups: []};
-    this.olderHistory = {groups: []};
-
-    let today = new Date();
-    let yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    this.messagesGroup.forEach(group => {
-      let date = new Date(group.lastUpdate);
-      let formattedDate = this.formatDate(date);
-
-      if (formattedDate === "Today") {
-        this.todayHistory.groups.push(group);
-      } else if (formattedDate === "Yesterday") {
-        this.yesterdayHistory.groups.push(group);
-      } else {
-        this.olderHistory.groups.push(group);
-      }
-    });
-  }
-
   setCommand(command : string | undefined){
+    if(this.attachments.length !== 0){
+      this.command = '/vision';
+      return;
+    }
     switch (command){
       case '/chat': this.command = command; break;
       case '/image': this.command = command; break;
@@ -137,11 +125,11 @@ export class ChatService {
     this.attachments = [];
 
     switch (this.command){
-      case '/chat': return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'chat'};
-      case '/image': return {id: this.messages.length + 1,role: 'assistant', content: data.data[0].url, type:'img'};
-      case '/speech': return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].content, type:'chat'};
-      case '/vision': return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'vision'};
-      default : return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'chat'};
+      case '/chat': this.command = undefined; return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'chat'};
+      case '/image': this.command = undefined; return {id: this.messages.length + 1,role: 'assistant', content: data.data[0].url, type:'img'};
+      case '/speech': this.command = undefined; return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].content, type:'chat'};
+      case '/vision': this.command = undefined; return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'vision'};
+      default : this.command = undefined; return {id: this.messages.length + 1,role: 'assistant', content: data.choices[0].message.content, type:'chat'};
     }
   }
 
@@ -162,5 +150,12 @@ export class ChatService {
 
   removeAttachment(id: number){
     this.attachments = this.attachments.filter(attachment => attachment.id !== id);
+  }
+
+  removeConversation(id: number){
+    if (this.loading) return;
+    this.messagesGroup = this.messagesGroup.filter(group => group.id !== id);
+    localStorage.setItem('messagesGroup', JSON.stringify(this.messagesGroup));
+    this.refreshHistory.emit(true);
   }
 }

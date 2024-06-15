@@ -63,7 +63,7 @@ export class ChatInputComponent {
     if(this.sending || this.chatService.loading) return;
     let messageToSend = "";
     this.sending = true;
-    if(this.command) messageToSend = this.message.split(this.command)[1]
+    if(this.command && this.chatService.attachments.length === 0) messageToSend = this.message.split(this.command)[1]
     else messageToSend = this.message;
 
     this.chatService.setCommand(this.command);
@@ -72,6 +72,7 @@ export class ChatInputComponent {
 
     setTimeout(() => {
       this.sending = false;
+      this.command = undefined;
     },2000);
   }
 

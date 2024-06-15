@@ -5,6 +5,7 @@ import {NgIf} from "@angular/common";
 import {ChatService} from "@services/chat.service";
 import {NavbarComponent} from "@components/navbar/navbar.component";
 import {Subscription} from "rxjs";
+import {HistoryService} from "@services/history.service";
 
 @Component({
   selector: 'app-chat-view',
@@ -24,7 +25,7 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked{
 
   subscriptions : Subscription[] = [];
 
-  constructor(protected readonly chatService : ChatService) { }
+  constructor(protected readonly chatService : ChatService, private readonly historyService: HistoryService) { }
 
   scrollToBottom(): void {
     try {
@@ -36,10 +37,19 @@ export class ChatViewComponent implements OnInit, OnDestroy, AfterViewChecked{
 
   ngOnInit(): void {
     this.subscriptions.push(this.chatService.newResponse.subscribe(() => {
+      const currentMessageGroup = this.chatService.messagesGroup.find(group => group.id === this.chatService.currentGroupId);
+      const indexOfCurrentMessageGroup = this.chatService.messagesGroup.indexOf(currentMessageGroup!);
+      if(currentMessageGroup && indexOfCurrentMessageGroup !== -1){
+        currentMessageGroup.lastUpdate = new Date();
+        currentMessageGroup.messages = [...this.chatService.messages];
+        this.chatService.messagesGroup[indexOfCurrentMessageGroup] = currentMessageGroup;
+        localStorage.setItem('messagesGroup', JSON.stringify(this.chatService.messagesGroup));
+      }
       setTimeout(() => {
         this.scrollToBottom();
       }, 500);
     }));
+    this.chatService.currentGroupId = this.chatService.messagesGroup[this.chatService.messagesGroup.length - 1].id + 1;
   }
 
   ngOnDestroy(): void {

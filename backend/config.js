@@ -12,7 +12,7 @@ dotenv.config();
 
 const API_KEY = process.env.OPENAI_API_KEY;
 
-export const PORT = process.env.PORT || 3001;
+export const PORT = process.env.PORT || 8080;
 
 // create an instance of OpenAI with the api key
 export const openai = new OpenAI({
